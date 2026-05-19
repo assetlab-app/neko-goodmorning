@@ -372,7 +372,7 @@
       position: relative;
       z-index: 1;
       display: grid;
-      align-content: center;
+      align-content: start;
       gap: 10px;
       min-height: 0;
     }
@@ -399,6 +399,23 @@
       color: var(--muted);
       max-width: 28em;
       line-height: 1.55;
+    }
+    .result-card-image-wrap {
+      width: min(100%, 220px);
+      aspect-ratio: 1 / 1;
+      margin: 4px auto 0;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid #efd8c2;
+      background: rgba(255,255,255,0.88);
+      box-shadow: 0 10px 24px rgba(123, 73, 45, 0.10);
+    }
+    .result-card-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
     }
     .result-card-foot {
       position: relative;
@@ -574,6 +591,7 @@
             <div class="result-card-main">
               <div class="result-card-emoji" id="cardEmoji">🐱</div>
               <h3 class="result-card-type" id="cardType">診断待ち</h3>
+              <div class="result-card-image-wrap"><img id="cardImage" class="result-card-image" src="" alt="結果カード画像" width="768" height="768" loading="lazy"></div>
               <p class="result-card-catch" id="cardCatch">朝の起こし方を入力すると、ここに結果カードが表示されます。</p>
               <p class="result-card-desc" id="cardDesc">顔踏み・鳴く・布団潜り込み・もの落としなど、朝の起こし行動の強さから診断します。</p>
             </div>
@@ -688,6 +706,7 @@
     const cardType = document.getElementById('cardType');
     const cardCatch = document.getElementById('cardCatch');
     const cardDesc = document.getElementById('cardDesc');
+    const cardImage = document.getElementById('cardImage');
     const cardTagText = document.getElementById('cardTagText');
 
     const shareX = document.getElementById('shareX');
@@ -730,12 +749,13 @@
       resultVisual.src = RESULT_IMAGES[key] || RESULT_IMAGES.direct || '';
     }
 
-    function updateCard(data) {
+    function updateCard(data, key = 'direct') {
       cardEmoji.textContent = data.emoji;
       cardType.textContent = data.name;
       cardCatch.textContent = data.catch;
       cardDesc.textContent = data.short;
       cardTagText.textContent = '#猫の起こし方診断';
+      if (cardImage) cardImage.src = RESULT_IMAGES[key] || RESULT_IMAGES.direct || '';
     }
 
     function updateShareLinks(text) {
@@ -777,7 +797,7 @@
         const waitingText = 'うちの猫の朝の起こし方を診断中…';
         shareText.value = waitingText;
         updateShareLinks(waitingText);
-        updateCard({ emoji:'🐱', name:'診断待ち', catch:'朝の起こし方を入力すると、ここに結果カードが表示されます。', short:'顔踏み・鳴く・布団潜り込み・もの落としなど、朝の起こし行動の強さから診断します。' });
+        updateCard({ emoji:'🐱', name:'診断待ち', catch:'朝の起こし方を入力すると、ここに結果カードが表示されます。', short:'顔踏み・鳴く・布団潜り込み・もの落としなど、朝の起こし行動の強さから診断します。' }, 'direct');
         return;
       }
 
@@ -800,7 +820,7 @@
       const reasons = buildReasons(scores, winner, second);
       reasonList.innerHTML = reasons.map(r => `<li>${r}</li>`).join('');
       renderBars(normalized);
-      updateCard(data);
+      updateCard(data, winner);
 
       const tieText = winners.length > 1 ? `同率で${winners.length}タイプが並びました。` : `もっとも強い起こし方は「${data.name}」でした。`;
       const secondText = second && scores[second] > 0 ? `2位は${TYPES[second].name}。` : '';
@@ -824,7 +844,7 @@
       const text = '診断するとここにシェア文が入ります。';
       shareText.value = text;
       updateShareLinks(text);
-      updateCard({ emoji:'🐱', name:'診断待ち', catch:'朝の起こし方を入力すると、ここに結果カードが表示されます。', short:'顔踏み・鳴く・布団潜り込み・もの落としなど、朝の起こし行動の強さから診断します。' });
+      updateCard({ emoji:'🐱', name:'診断待ち', catch:'朝の起こし方を入力すると、ここに結果カードが表示されます。', short:'顔踏み・鳴く・布団潜り込み・もの落としなど、朝の起こし行動の強さから診断します。' }, 'direct');
     }
 
     async function copyText(text, targetButton) {
